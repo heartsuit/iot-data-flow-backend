@@ -1,2 +1,23 @@
 server:
   port: 8000
+
+spring:
+  datasource:
+    driver-class-name: com.taosdata.jdbc.TSDBDriver
+    url: jdbc:TAOS://iot1:6030/iot?charset=UTF-8&locale=en_US.UTF-8&timezone=UTC-8
+    username: root
+    password: taosdata
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+
+logging:
+  level:
+    com:
+      heartsuit:
+        storage:
+          mapper: debug

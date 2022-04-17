@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @Author Heartsuit
  * @Date 2021-07-31
  */
-@RestControllerAdvice(basePackages = "com.heartsuit.common.controller")
+@RestControllerAdvice(basePackages = "com.heartsuit")
 public class ResultAdvice implements ResponseBodyAdvice<Object> {
     @Autowired
     private ObjectMapper objectMapper;

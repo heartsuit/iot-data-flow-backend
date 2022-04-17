@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.heartsuit.storage.mapper.PowerMapper">
+
+    <resultMap id="BaseResultMap" type="com.heartsuit.storage.domain.Power">
+        <id column="ts" jdbcType="TIMESTAMP" property="ts"/>
+        <result column="voltage" jdbcType="INTEGER" property="voltage"/>
+        <result column="currente" jdbcType="FLOAT" property="currente"/>
+        <result column="temperature" jdbcType="FLOAT" property="temperature"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ts, voltage, currente, temperature, city, groupid
+    </sql>
+</mapper>
