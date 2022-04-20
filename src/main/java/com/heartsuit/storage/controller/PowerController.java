@@ -1,5 +1,9 @@
 package com.heartsuit.storage.controller;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,10 +13,15 @@ import com.heartsuit.storage.mapper.PowerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author Heartsuit
@@ -150,5 +159,66 @@ public class PowerController {
         result.put("axisX", axisX);
         result.put("series", series);
         return Result.success(result);
+    }
+
+    /**
+     * 导出数据为Excel，实际一般为条件检索后导出
+     *
+     * @param response
+     * @throws IOException
+     */
+    @GetMapping("exportXls")
+    public void exportExcel(HttpServletResponse response, @RequestParam Map<String, Object> params) throws IOException, ClassNotFoundException {
+        QueryWrapper<Power> wrapper = new QueryWrapper<>();
+        wrapper.eq("sn", params.get("sn"));
+        wrapper.between("ts", params.get("startTime"), params.get("endTime"));
+        wrapper.orderByDesc("ts");
+        List<Power> powers = powerMapper.selectList(wrapper);
+
+        List<Map<String, Object>> rows = powers.stream().map(item -> {
+            Map<String, Object> maps = new HashMap<>();
+            maps.put("ts", item.getTs().toString());
+            maps.put("voltage", item.getVoltage());
+            maps.put("currente", item.getCurrente());
+            maps.put("temperature", item.getTemperature());
+            maps.put("sn", item.getSn());
+            maps.put("city", item.getCity());
+            maps.put("groupid", item.getGroupid());
+            return maps;
+        }).collect(Collectors.toList());
+
+        ExcelWriter writer = ExcelUtil.getWriter();
+
+        // Title
+        int columns = Class.forName("com.heartsuit.storage.domain.Power").getDeclaredFields().length;
+        writer.merge(columns - 1, "历史数据");
+
+        // Header
+        writer.addHeaderAlias("ts", "时间");
+        writer.addHeaderAlias("voltage", "电压");
+        writer.addHeaderAlias("currente", "电流");
+        writer.addHeaderAlias("temperature", "温度");
+        writer.addHeaderAlias("sn", "设备编号");
+        writer.addHeaderAlias("city", "城市");
+        writer.addHeaderAlias("groupid", "分组ID");
+
+        // Body
+        writer.setColumnWidth(0, 30);
+        writer.setColumnWidth(1, 30);
+        writer.setColumnWidth(2, 30);
+        writer.setColumnWidth(3, 30);
+        writer.setColumnWidth(4, 30);
+        writer.setColumnWidth(5, 30);
+        writer.setColumnWidth(6, 30);
+        writer.setColumnWidth(7, 30);
+        writer.write(rows, true);
+
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        response.setHeader("Content-disposition", "attachment; filename=" + URLEncoder.encode("设备device" + params.get("sn") + "历史数据-" + DateUtil.today() + ".xls", "utf-8"));
+
+        ServletOutputStream out = response.getOutputStream();
+        writer.flush(out, true);
+        writer.close();
+        IoUtil.close(out);
     }
 }
