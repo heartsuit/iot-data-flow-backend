@@ -115,4 +115,40 @@ public class PowerController {
         IPage deviceData = powerMapper.selectPage(new Page<>(page, size), wrapper);
         return Result.success(deviceData);
     }
+
+    /**
+     * 降采样：查询设备数据趋势
+     * @param params
+     * @return
+     */
+    @GetMapping("getDeviceDataTrend")
+    public Result getDeviceDataTrend(@RequestParam Map<String, Object> params) {
+        String sn = (String) params.get("sn");
+        String startTime = (String) params.get("startTime");
+        String endTime = (String) params.get("endTime");
+        List<Map<String, Object>> deviceDataTrend = powerMapper.getDeviceDataTrend(sn, startTime, endTime);
+
+        List<Object> axisX = new ArrayList<>();
+        List<Object> voltage = new ArrayList<>();
+        List<Object> currente = new ArrayList<>();;
+        List<Object> temperature = new ArrayList<>();;
+
+        deviceDataTrend.forEach(item -> {
+            axisX.add(item.get("ts"));
+            voltage.add(item.get("voltage"));
+            currente.add(item.get("currente"));
+            temperature.add(item.get("temperature"));
+        });
+
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, Object> series = new HashMap<>();
+        series.put("电压", voltage);
+        series.put("电流", currente);
+        series.put("温度", temperature);
+
+        result.put("axisX", axisX);
+        result.put("series", series);
+        return Result.success(result);
+    }
 }

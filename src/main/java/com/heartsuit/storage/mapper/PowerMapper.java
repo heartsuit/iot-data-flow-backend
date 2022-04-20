@@ -24,4 +24,6 @@ public interface PowerMapper extends BaseMapper<Power> {
 
     List<String> getSubTablesInCity(String city);
     List<Map<String, Object>> getLastValue(List<String> tableNames);
+
+    List<Map<String, Object>> getDeviceDataTrend(String sn, String startTime, String endTime);
 }

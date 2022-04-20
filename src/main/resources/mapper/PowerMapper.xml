@@ -43,4 +43,11 @@
             </if>
         </foreach>
     </select>
+
+    <!--查询设备数据趋势-->
+    <select id="getDeviceDataTrend" resultType="java.util.Map">
+        select last(voltage) voltage, last(currente) currente, last(temperature) temperature from iot.power
+        where sn = #{sn} and ts > #{startTime} and ts &lt; #{endTime}
+        interval(60s) fill(value, 0);
+    </select>
 </mapper>
