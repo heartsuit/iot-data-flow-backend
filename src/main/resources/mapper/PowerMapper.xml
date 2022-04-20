@@ -13,4 +13,34 @@
     <sql id="Base_Column_List">
         ts, voltage, currente, temperature, city, groupid
     </sql>
+
+    <sql id="Last_Base_Column_List">
+        last(ts) ts, last(voltage) voltage, last(currente) currente, last(temperature) temperature
+    </sql>
+
+    <select id="getAllDataAvg" resultType="java.util.Map">
+        select avg(voltage) voltage, avg(currente) currente, avg(temperature) temperature from iot.power;
+    </select>
+
+    <!--查询指定城市的数据量，数据指标：电压、电流、温度平均值-->
+    <select id="getAllDataAvgInCity" resultType="java.util.Map">
+        select count(1) total, avg(voltage) voltage, avg(currente) currente, avg(temperature) temperature from iot.power where city=#{city}
+    </select>
+
+    <!--查询指定城市的设备表名-->
+    <select id="getSubTablesInCity" resultType="java.lang.String">
+        select tbname from iot.power where city=#{city}
+    </select>
+
+    <!--查询传入设备组的最新数据-->
+    <select id="getLastValue" resultMap="BaseResultMap">
+        <foreach separator=" " collection="list" item="tbname" index="index">
+            select
+            <include refid="Last_Base_Column_List"/>
+            from iot.#{tbname}
+            <if test="index != (list.size() - 1)">
+                union all
+            </if>
+        </foreach>
+    </select>
 </mapper>
