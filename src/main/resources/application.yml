@@ -21,3 +21,6 @@ logging:
       heartsuit:
         storage:
           mapper: debug
+netty-ws:
+  path: /ws/{arg}
+  port: 8888
